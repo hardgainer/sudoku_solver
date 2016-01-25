@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdlib.h>		// exit
 
 // незаполненные ячейки равны нулю
 
@@ -19,7 +20,8 @@ void input(state_t *pst)
 	for (int i = 0; i < 9; i++)
 	{
 		printf("Введите ряд №%d: ", i+1);
-		fgets(str, 11, stdin);
+		if (!fgets(str, 11, stdin))
+			exit(EXIT_FAILURE);
 		// printf("(%zi) %s\n", strlen(str), str);
 		int len = strlen(str);
 		str[len-1] = 0;		// затираем перенос строки, если есть
@@ -132,6 +134,20 @@ bool check_quad(const state_t *pst, int index, int value)
 	return true;
 }
 
+void visualize(const state_t *pst)
+{
+	char s[82] = {};
+	for (int i = 0; i < 81; i++)
+	{
+		if (pst->d[i] == 0)
+			s[i] = ' ';
+		else
+			s[i] = (char)(pst->d[i] + 0x30);
+	}
+	s[81] = 0;
+	fprintf(stderr, "%s\r", s);
+}
+
 // алгоритм решения
 // состояние передаётся копированием
 void solve(state_t st)
@@ -144,6 +160,7 @@ void solve(state_t st)
 		print_sudoku(&st);
 		return;
 	}
+	visualize(&st);
 
 	// подбираем подходящую цифру на свободное место
 	for (int n = 1; n <= 9; n++)
@@ -164,7 +181,7 @@ void solve(state_t st)
 
 int main()
 {
-	state_t s = {0};
+	state_t s = {};
 	input(&s);
 	// print_sudoku(&s);
 	solve(s);
